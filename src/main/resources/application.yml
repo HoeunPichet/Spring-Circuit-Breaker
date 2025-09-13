@@ -16,6 +16,7 @@ eureka:
 
 resilience4j:
   circuitbreaker:
+    enabled: true
     instances:
       productService:
         register-health-indicator: true
@@ -25,17 +26,21 @@ resilience4j:
         wait-duration-in-open-state: 10s
 
   retry:
+    enabled: true
     instances:
       productService:
         max-attempts: 3         # total calls (1 original + 4 retries)
         wait-duration: 2000     # delay between retries
 
   timelimiter:
+    enabled: true
     instances:
       productService:
         timeout-duration: 1s
+        cancel-running-future: true
 
   ratelimiter:
+    enabled: true
     instances:
       productService:
         limit-for-period: 5       # Maximum number of calls allowed within a refresh period
@@ -44,11 +49,15 @@ resilience4j:
         register-health-indicator: true  # Optional: whether to register a health indicator for monitoring
 
   bulkhead:
+    enabled: true
     instances:
       productService:
         max-concurrent-calls: 4
         max-wait-duration: 1000
-
+        # OR for THREADPOOL:
+        # max-thread-pool-size: 5
+        # core-thread-pool-size: 3
+        # queue-capacity: 10
 logging:
   level:
     io.github.resilience4j.retry: DEBUG

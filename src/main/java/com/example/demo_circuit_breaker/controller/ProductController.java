@@ -17,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
@@ -24,12 +26,11 @@ public class ProductController {
     private final WebClient client;
 
     @GetMapping("/{id}")
-    @Bulkhead(name = "productService", fallbackMethod = "fallbackProduct", type = Bulkhead.Type.SEMAPHORE)
-//    @CircuitBreaker(name = "productService", fallbackMethod = "fallbackProduct")
-//    @Retry(name = "productService", fallbackMethod = "fallbackRetry")
-//    @TimeLimiter(name = "productService")
-//    @Retry(name = "productService")
-//    @RateLimiter(name = "productService")
+    @CircuitBreaker(name = "productService", fallbackMethod = "fallbackProduct")
+    @Retry(name = "productService", fallbackMethod = "fallbackRetry")
+    @RateLimiter(name = "productService")
+    @TimeLimiter(name = "productService")
+    @Bulkhead(name = "productService", type = Bulkhead.Type.SEMAPHORE)
     public Mono<Product> getProductById(@PathVariable Long id) {
         return client.get()
                         .uri("https://dummyjson.com/products/{id}", id)
