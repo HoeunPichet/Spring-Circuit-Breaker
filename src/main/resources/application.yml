@@ -2,6 +2,18 @@ spring:
   application:
     name: demo-circuit-breaker
 
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
 resilience4j:
   circuitbreaker:
     instances:
@@ -15,8 +27,27 @@ resilience4j:
   retry:
     instances:
       productService:
-        max-attempts: 3          # total calls (1 original + 2 retries)
-        wait-duration: 500ms     # delay between retries
+        max-attempts: 3         # total calls (1 original + 4 retries)
+        wait-duration: 2000     # delay between retries
+
+  timelimiter:
+    instances:
+      productService:
+        timeout-duration: 1s
+
+  ratelimiter:
+    instances:
+      productService:
+        limit-for-period: 5       # Maximum number of calls allowed within a refresh period
+        limit-refresh-period: 10s  # Duration of the refresh period (time window)
+        timeout-duration: 500ms   # Timeout duration to wait for a permission if none available
+        register-health-indicator: true  # Optional: whether to register a health indicator for monitoring
+
+  bulkhead:
+    instances:
+      productService:
+        max-concurrent-calls: 4
+        max-wait-duration: 1000
 
 logging:
   level:
